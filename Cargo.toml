@@ -21,6 +21,24 @@ tcspecial = { path = "../tcspecial/tcspecial", default-features = false, feature
     "spi_tmass",
 ] }
 tcsos = { path = "../tcspecial/tcsos" }
+# The simulator and the ground station, as libraries the page starts as
+# programs.
+tcs-sim = { path = "../tcspecial/tcs-sim" }
+tcs-moc = { path = "../tcspecial/tcs-moc" }
+# The windows' toolkit. Its winit backend is named for itself, at the
+# version slint is, because it is what lets the page give each window a
+# canvas of its own and run the event loop without blocking the page.
+slint = "1.18"
+i-slint-backend-winit = { version = "=1.18.1", features = ["renderer-femtovg"] }
+# The page, where each window's canvas is put.
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "HtmlElement",
+    "Node",
+    "Window",
+] }
 # Exactly the version of the wasm-bindgen tool the build runs: the two
 # must agree on the format between them.
 wasm-bindgen = "=0.2.129"

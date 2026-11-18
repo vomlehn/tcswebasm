@@ -131,41 +131,100 @@ fn segsend(args: Vec<String>) -> i32 {
     }
 }
 
-/// Listens where the thermostat's beacons are sent, and says each one in
-/// the console: a first proof that tcspecial runs and talks.
-fn listen() {
-    let socket = match tcsos::net::UdpSocket::bind("127.0.0.1:5650") {
-        Ok(socket) => socket,
-        Err(e) => {
-            log::error!("cannot listen for beacons: {e}");
-            return;
-        }
-    };
-    let mut buffer = [0u8; 2048];
-    loop {
-        match socket.recv_from(&mut buffer) {
-            Ok((got, from)) => log::info!(
-                "beacon from {from}: {got} bytes: {}",
-                String::from_utf8_lossy(&buffer[..got.min(120)])
-            ),
-            Err(e) => {
-                log::error!("listening for beacons failed: {e}");
-                return;
-            }
-        }
-    }
+/// tcs-sim, as the page starts it.
+///
+/// # Arguments
+///
+/// * `_args` - Its arguments, which it reads from its program's own.
+///
+/// # Returns
+///
+/// Nought, where it returns rather than exits.
+fn tcs_sim(_args: Vec<String>) -> i32 {
+    tcs_sim::main();
+    0
 }
 
-/// Starts the page: the files, the programs, and the thermostat's vehicle.
+/// tcs-moc, as the page starts it: the thermostat's ground station, which
+/// starts tcs-sim and tcspecial in turn, as it does on Linux.
+///
+/// # Arguments
+///
+/// * `_args` - Its arguments, which it reads from its program's own.
+///
+/// # Returns
+///
+/// Nought, where it returns rather than exits.
+fn tcs_moc(_args: Vec<String>) -> i32 {
+    tcs_moc::main();
+    0
+}
+
+/// A canvas for a window to be drawn on, made as the window is: in a frame
+/// of its own in the page's list of windows, hidden until the window is
+/// shown. Slint would otherwise draw every window on the one element named
+/// `canvas`.
+///
+/// # Returns
+///
+/// The canvas, or `None` where the page has no list of windows.
+fn new_canvas() -> Option<web_sys::HtmlCanvasElement> {
+    use wasm_bindgen::JsCast;
+
+    let document = web_sys::window()?.document()?;
+    let windows = document.get_element_by_id("windows")?;
+    let frame = document.create_element("div").ok()?;
+    frame.set_class_name("window");
+    let _ = frame.toggle_attribute_with_force("hidden", true);
+    let canvas = document
+        .create_element("canvas")
+        .ok()?
+        .dyn_into::<web_sys::HtmlCanvasElement>()
+        .ok()?;
+    frame.append_child(&canvas).ok()?;
+    windows.append_child(&frame).ok()?;
+    Some(canvas)
+}
+
+/// Has Slint draw each window on a canvas of its own, and runs its event
+/// loop on the page's thread without stopping the page: the loop is the
+/// browser's own, which comes back to it between events.
+///
+/// # Errors
+///
+/// Where Slint cannot be set up.
+fn windows() -> Result<(), String> {
+    use i_slint_backend_winit::winit::platform::web::WindowAttributesExtWebSys;
+
+    let backend = i_slint_backend_winit::Backend::builder()
+        .with_spawn_event_loop(true)
+        .with_window_attributes_hook(|attributes| {
+            attributes.with_canvas(new_canvas()).with_active(false)
+        })
+        .build()
+        .map_err(|e| e.to_string())?;
+    slint::platform::set_platform(Box::new(backend))
+        .map_err(|e| e.to_string())?;
+    slint::run_event_loop().map_err(|e| e.to_string())
+}
+
+/// Starts the page: the files, the windows, the programs, and the
+/// thermostat's ground station, which starts the rest.
 #[wasm_bindgen(start)]
 pub fn start() {
     console_error_panic_hook::set_once();
+    tcsos::browser::console::capture_page_output();
     let _ = console_log::init_with_level(log::Level::Info);
     preload();
+    if let Err(e) = windows() {
+        log::error!("the windows cannot be drawn: {e}");
+        return;
+    }
     tcsos::process::register("tcspecial", tcspecial);
     tcsos::process::register("segsend", segsend);
-    tcsos::thread::spawn(listen);
-    let started = tcsos::process::Command::new("/bin/tcspecial")
+    tcsos::process::register("tcs-sim", tcs_sim);
+    tcsos::process::register("tcs-moc", tcs_moc);
+    let started = tcsos::process::Command::new("/bin/tcs-moc")
         .args([
             "--simulate=all",
             "--no-memlock",
@@ -174,7 +233,7 @@ pub fn start() {
         .current_dir("/")
         .spawn();
     match started {
-        Ok(child) => log::info!("tcspecial started, program {}", child.id()),
-        Err(e) => log::error!("tcspecial could not be started: {e}"),
+        Ok(child) => log::info!("tcs-moc started, program {}", child.id()),
+        Err(e) => log::error!("tcs-moc could not be started: {e}"),
     }
 }

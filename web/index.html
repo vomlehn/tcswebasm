@@ -4,9 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TCSpecial in a Browser</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; padding: 16px; font-family: sans-serif;
+           background: Canvas; color: CanvasText; }
+    /* Each program's window, on a canvas of its own: see src/lib.rs. */
+    #windows { display: flex; flex-wrap: wrap; gap: 16px;
+               align-items: flex-start; }
+    .window { border: 1px solid GrayText; box-shadow: 0 2px 8px #0004; }
+    .window canvas { display: block; }
+    .window[hidden] { display: none; }
+  </style>
 </head>
 <body>
-  <p>TCSpecial's thermostat, running in this page: see the console.</p>
+  <p>TCSpecial's thermostat, running in this page.</p>
+  <div id="windows"></div>
   <script type="module">
     import init from "./pkg/tcswebasm.js";
     // Long stacks, for a panic said in the console.

@@ -15,12 +15,30 @@ in it is simulated.
 What runs
 =========
 
-The page starts tcspecial on an example's configuration, as ``tcsx`` does on
-a desk, under ``--simulate=all``. tcspecial runs under its supervisor, which
-starts it again as its child, exactly as on Linux; the child loads the
-configuration, opens its nodes, and sends its beacons. So far the page shows
-what it does in the browser's console: the thermostat's beacons, heard by a
-listener of the page's own. tcs-sim's and tcs-moc's windows come next.
+The thermostat example, as ``make runmocy
+TCSPECIAL_CONFIG_FILE=examples/thermostat/thermostat`` runs it on a desk,
+under ``--simulate=all``. The page starts tcs-moc, the ground station;
+tcs-moc starts tcs-sim and waits for it to say it is ready, then starts
+tcspecial, whose supervisor starts it again as its child, exactly as on
+Linux. Their windows are drawn in the page, one under another:
+
+* tcs-sim's, with a panel for each simulated payload: the three
+  temperature sensors and the two heaters.
+* tcs-moc's, with the command link, the beacon and a panel for each data
+  handler.
+* tcs-moc's plot of the zone's temperature against the thermostat's band.
+
+To watch the thermostat work:
+
+#. In tcs-moc's window, press **Connect**. tcspecial answers with its
+   configuration's checksum, which matches the window's.
+#. In tcs-sim's window, press **Enable** on each payload: the sensors start
+   reporting and the heaters can be driven.
+#. In tcs-moc's window, press **Enable** on each data handler. Readings
+   arrive in the panels, and the plot draws the temperature, which tcspecial
+   holds within the band by switching the heaters.
+
+What each program prints is in the browser's console.
 
 How the programs run in a page
 ==============================
@@ -30,7 +48,8 @@ the system goes through ``tcsos``, in tcspecial's repository, which on
 Linux is Linux and in a page is the page's own substitutes:
 
 Programs
-  Each program -- tcspecial, its supervisor's child, segsend -- is a
+  Each program -- tcs-moc, tcs-sim, tcspecial and its supervisor's child,
+  segsend -- is a
   function the page registers under its name and starts on a thread of its
   own, with its own arguments, variables, directory and stop flag. A stop
   asked of a program is what SIGTERM is on Linux.
@@ -45,6 +64,18 @@ Sockets
   sockets on Linux. An app node's interfaces are TCP connections of the
   page's, carrying the same packets as on Linux: four bytes of length, then
   that many bytes.
+
+Windows
+  A page draws on its own thread alone, and every program runs on a
+  worker; so a program sends the part of it that makes a window to the
+  page's thread, and waits there for the window to close. Each window has a
+  canvas of its own, shown while the window is. The page's thread never
+  waits for a lock or a message: it takes either by trying until it is
+  free, which a lock the windows share, held for a moment, soon is.
+
+Output
+  What a program prints, on its standard output or error, is shown in the
+  browser's console a line at a time.
 
 Files
   Held in the page's memory. The examples' configurations are put there
@@ -64,6 +95,8 @@ What a page cannot do
 * Keep a telemetry log. tcslog, which writes it, is built on the standard
   library's files and clock, so the page takes the ``log`` section out of
   the configurations it loads.
+* Close a window from its frame. A page's windows have no title bar:
+  tcs-moc's **Quit** ends the run, as on Linux.
 * Recover from a panic. A page's WebAssembly cannot unwind, so a panic in
   any program ends the page.
 
@@ -96,4 +129,5 @@ Serving it
 serves ``web/`` at http://127.0.0.1:8000 with the two headers that make a
 page cross-origin isolated, ``Cross-Origin-Opener-Policy: same-origin`` and
 ``Cross-Origin-Embedder-Policy: require-corp``, without which a page's
-workers cannot share its memory. Open it, and the browser's console.
+workers cannot share its memory. Open it, and the browser's console to
+see what the programs print.
