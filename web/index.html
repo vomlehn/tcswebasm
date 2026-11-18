@@ -20,7 +20,11 @@
   </style>
 </head>
 <body>
-  <p>TCSpecial's thermostat, running in this page.</p>
+  <nav>Examples:
+    <a href="?example=thermostat">Thermostat</a> ·
+    <a href="?example=lander">Lunar lander</a>
+  </nav>
+  <p id="about"></p>
   <p id="waiting" hidden>Setting up the page; if nothing appears, load it
     again. This browser must allow service workers, which a private window
     may not.</p>
@@ -29,6 +33,14 @@
     import init from "./pkg/tcswebasm.js";
     // Long stacks, for a panic said in the console.
     Error.stackTraceLimit = 100;
+    // What the page runs, as src/lib.rs picks it from the address.
+    const example = new URLSearchParams(location.search).get("example");
+    document.getElementById("about").textContent = example === "lander"
+      ? "TCSpecial's lunar lander, running in this page: two tcspecials " +
+        "fly it, one per axis. Fly it from tcs-sim's joystick, or press " +
+        "Autoland; the ground station below sees it 1.3 s late, as from " +
+        "the Earth."
+      : "TCSpecial's thermostat, running in this page.";
     // Threads need an isolated page; coi.js loads it again once it is.
     if (window.crossOriginIsolated) {
       init();

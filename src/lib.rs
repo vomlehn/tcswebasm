@@ -47,6 +47,42 @@ const FILES: &[(&str, &str)] = &[
             "../../tcspecial/examples/thermostat-common/thermostat.xtcs"
         ),
     ),
+    (
+        "/examples/lander-a/lander-a.ytcs",
+        include_str!("../../tcspecial/examples/lander-a/lander-a.ytcs"),
+    ),
+    (
+        "/examples/lander-a/lander-a-sim.yaml",
+        include_str!("../../tcspecial/examples/lander-a/lander-a-sim.yaml"),
+    ),
+    (
+        "/examples/lander-a/lander-a.xtcs",
+        include_str!("../../tcspecial/examples/lander-a/lander-a.xtcs"),
+    ),
+    (
+        "/examples/lander-a/lander-a.xtce",
+        include_str!("../../tcspecial/examples/lander-a/lander-a.xtce"),
+    ),
+    (
+        "/examples/lander-b/lander-b.ytcs",
+        include_str!("../../tcspecial/examples/lander-b/lander-b.ytcs"),
+    ),
+    (
+        "/examples/lander-b/lander-b-sim.yaml",
+        include_str!("../../tcspecial/examples/lander-b/lander-b-sim.yaml"),
+    ),
+    (
+        "/examples/lander-b/lander-b.xtcs",
+        include_str!("../../tcspecial/examples/lander-b/lander-b.xtcs"),
+    ),
+    (
+        "/examples/lander-b/lander-b.xtce",
+        include_str!("../../tcspecial/examples/lander-b/lander-b.xtce"),
+    ),
+    (
+        "/examples/lander-common/lander-sim.yaml",
+        include_str!("../../tcspecial/examples/lander-common/lander-sim.yaml"),
+    ),
 ];
 
 /// A configuration without its telemetry log: tcslog, which writes it, is
@@ -160,6 +196,65 @@ fn tcs_moc(_args: Vec<String>) -> i32 {
     0
 }
 
+/// lander-station, as the page starts it: the lander's ground station,
+/// which starts tcs-sim and both tcspecials in turn, as it does on Linux.
+///
+/// # Arguments
+///
+/// * `_args` - Its arguments, which it reads from its program's own.
+///
+/// # Returns
+///
+/// Nought, where it returns rather than exits.
+fn lander_station(_args: Vec<String>) -> i32 {
+    lander_station::main();
+    0
+}
+
+/// An example the page runs, and the ground station it starts it with.
+struct Example {
+    /// Its name, as the page's address asks for it: `?example=NAME`.
+    name: &'static str,
+    /// The ground station, with its arguments.
+    command: &'static [&'static str],
+}
+
+/// The examples the page runs, the first where the address names none.
+const EXAMPLES: &[Example] = &[
+    Example {
+        name: "thermostat",
+        command: &[
+            "/bin/tcs-moc",
+            "--simulate=all",
+            "--no-memlock",
+            "/examples/thermostat/thermostat.ytcs",
+        ],
+    },
+    Example {
+        name: "lander",
+        command: &["/bin/lander-station", "--no-memlock"],
+    },
+];
+
+/// The example the page's address asks for, `?example=NAME`.
+///
+/// # Returns
+///
+/// It, or the first where the address names none it runs.
+fn example() -> &'static Example {
+    let search = web_sys::window()
+        .and_then(|window| window.location().search().ok())
+        .unwrap_or_default();
+    let asked = search
+        .trim_start_matches('?')
+        .split('&')
+        .find_map(|pair| pair.strip_prefix("example="));
+    EXAMPLES
+        .iter()
+        .find(|example| Some(example.name) == asked)
+        .unwrap_or(&EXAMPLES[0])
+}
+
 /// A canvas for a window to be drawn on, made as the window is: in a frame
 /// of its own in the page's list of windows, hidden until the window is
 /// shown. Slint would otherwise draw every window on the one element named
@@ -208,8 +303,8 @@ fn windows() -> Result<(), String> {
     slint::run_event_loop().map_err(|e| e.to_string())
 }
 
-/// Starts the page: the files, the windows, the programs, and the
-/// thermostat's ground station, which starts the rest.
+/// Starts the page: the files, the windows, the programs, and the ground
+/// station of the example the address asks for, which starts the rest.
 #[wasm_bindgen(start)]
 pub fn start() {
     console_error_panic_hook::set_once();
@@ -224,16 +319,19 @@ pub fn start() {
     tcsos::process::register("segsend", segsend);
     tcsos::process::register("tcs-sim", tcs_sim);
     tcsos::process::register("tcs-moc", tcs_moc);
-    let started = tcsos::process::Command::new("/bin/tcs-moc")
-        .args([
-            "--simulate=all",
-            "--no-memlock",
-            "/examples/thermostat/thermostat.ytcs",
-        ])
+    tcsos::process::register("lander-station", lander_station);
+    let example = example();
+    let [program, args @ ..] = example.command else {
+        return;
+    };
+    let started = tcsos::process::Command::new(program)
+        .args(args)
         .current_dir("/")
         .spawn();
     match started {
-        Ok(child) => log::info!("tcs-moc started, program {}", child.id()),
-        Err(e) => log::error!("tcs-moc could not be started: {e}"),
+        Ok(child) => {
+            log::info!("{program} started, program {}", child.id())
+        }
+        Err(e) => log::error!("{program} could not be started: {e}"),
     }
 }

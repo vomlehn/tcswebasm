@@ -18,6 +18,14 @@ It is published at https://vomlehn.github.io/tcswebasm/: see
 What runs
 =========
 
+Two of tcspecial's examples, chosen by the page's address: the thermostat,
+at the page's own address or with ``?example=thermostat``, and the lunar
+lander, with ``?example=lander``. The links at the top of the page switch
+between them.
+
+The thermostat
+--------------
+
 The thermostat example, as ``make runmocy
 TCSPECIAL_CONFIG_FILE=examples/thermostat/thermostat`` runs it on a desk,
 under ``--simulate=all``. The page starts tcs-moc, the ground station;
@@ -41,6 +49,41 @@ To watch the thermostat work:
    arrive in the panels, and the plot draws the temperature, which tcspecial
    holds within the band by switching the heaters.
 
+The lunar lander
+----------------
+
+The lander example: two tcspecials, ``lander-a`` flying the X axis and
+``lander-b`` the Y, and one tcs-sim simulating both in one world. On Linux
+its ground station is ``lander_yamcs.py``, through Yamcs; neither Python
+nor Yamcs runs in a page, so the page runs ``lander-station``, the
+example's ground station in Rust, which does the same without them and
+runs on Linux as well (``make run-lander-station`` in tcspecial). It makes
+a landscape at random, says the seed in its window, starts tcs-sim and
+waits for it to be ready, then starts both tcspecials and sends each
+CONNECT until it answers with its configuration's checksum. Everything
+between it and the vehicles is held 1.3 s each way, the time light takes
+between the Moon and the Earth. Two windows are drawn:
+
+* tcs-sim's, with the lander's pane -- the landscape, the lander, its
+  values and the joystick it is flown with -- and a panel for each
+  simulated payload.
+* lander-station's, with the lander as the vehicles report it: the same
+  landscape, the stars as lander-a sends them down, the lander where it was
+  last said to be, carried on between reports, its values, its fuel, the
+  joystick as it was held, and whether it has landed or crashed.
+
+To fly it:
+
+#. The lander starts falling as soon as the vehicles ask the simulator for
+   their first readings, before anyone flies it, so the first flight
+   crashes. In lander-station's window, press **Restart**: the lander
+   starts again at the top left, and the station sees it 1.3 s later.
+#. In tcs-sim's window, press **Autoland** for the autopilot to land it, or
+   hold the button down in the joystick's middle square and drag along an
+   arm: left or right for the side thrusters, up for the engine.
+#. **Enable Autorestart** in lander-station's window has the lander start
+   again by itself a few seconds after each crash.
+
 What each program prints is in the browser's console.
 
 How the programs run in a page
@@ -51,8 +94,8 @@ the system goes through ``tcsos``, in tcspecial's repository, which on
 Linux is Linux and in a page is the page's own substitutes:
 
 Programs
-  Each program -- tcs-moc, tcs-sim, tcspecial and its supervisor's child,
-  segsend -- is a
+  Each program -- tcs-moc, lander-station, tcs-sim, tcspecial and its
+  supervisor's child, segsend -- is a
   function the page registers under its name and starts on a thread of its
   own, with its own arguments, variables, directory and stop flag. A stop
   asked of a program is what SIGTERM is on Linux.

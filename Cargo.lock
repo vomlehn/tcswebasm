@@ -2495,6 +2495,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lander-example"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "slint",
+ "slint-build",
+ "tcs-sim",
+ "tcs-ui",
+ "tcsmoc",
+ "tcsos",
+ "tcsprotocol",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4615,6 +4629,7 @@ dependencies = [
  "console_error_panic_hook",
  "console_log",
  "i-slint-backend-winit",
+ "lander-example",
  "log",
  "slint",
  "tcs-moc",
