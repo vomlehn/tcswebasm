@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TCSpecial in a Browser</title>
+</head>
+<body>
+  <p>TCSpecial's thermostat, running in this page: see the console.</p>
+  <script type="module">
+    import init from "./pkg/tcswebasm.js";
+    // Long stacks, for a panic said in the console.
+    Error.stackTraceLimit = 100;
+    init();
+  </script>
+</body>
+</html>

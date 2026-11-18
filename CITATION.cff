@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "tcswebasm: the TCSpecial examples running in a web browser"
+abstract: >-
+  tcswebasm runs TCSpecial's flight software, built from TCSpecial's own
+  source for WebAssembly, in a web page, with nothing to install. Its
+  programs run as threads of the page, talking to one another over a
+  network held in the page's memory, at the addresses their
+  configurations give, so that what is shown is the software that runs
+  on a desk, simulated throughout.
+authors:
+  - name: "TCSpecial Team"
+version: 0.1.0
+date-released: 2026-11-17
+license:
+  - MIT
+  - Apache-2.0
+repository-code: "https://github.com/vomlehn/tcswebasm"
+url: "https://vomlehn.github.io/tcswebasm/docs/manual.html"
+keywords:
+  - flight software
+  - WebAssembly
+  - browser
+  - simulation
+  - Rust

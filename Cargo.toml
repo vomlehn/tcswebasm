@@ -1,0 +1,36 @@
+[package]
+name = "tcswebasm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = """\
+The TCSpecial examples in a web page: tcspecial, tcs-sim and tcs-moc built \
+for WebAssembly, on tcsos's browser substitutes"""
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# The flight software, with the node types the examples use, simulated:
+# see tcsos's browser side.
+tcspecial = { path = "../tcspecial/tcspecial", default-features = false, features = [
+    "gpio_in",
+    "gpio_out",
+    "gpio_inout",
+    "i2c_tmass",
+    "spi_tmass",
+] }
+tcsos = { path = "../tcspecial/tcsos" }
+# Exactly the version of the wasm-bindgen tool the build runs: the two
+# must agree on the format between them.
+wasm-bindgen = "=0.2.129"
+# A panic said in the browser's console rather than as "unreachable".
+console_error_panic_hook = "0.1"
+# The programs' log, in the browser's console.
+log = "0.4"
+console_log = "1"
+
+[profile.release]
+# Small enough to download, and the panics still say where.
+opt-level = "s"
+debug = false
