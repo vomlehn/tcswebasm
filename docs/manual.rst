@@ -12,6 +12,9 @@ page: nothing to install, and nothing to build for whoever opens the page.
 It is for showing TCS to anyone with a browser, not for flying: everything
 in it is simulated.
 
+It is published at https://vomlehn.github.io/tcswebasm/: see
+`Publishing it`_.
+
 What runs
 =========
 
@@ -131,3 +134,25 @@ page cross-origin isolated, ``Cross-Origin-Opener-Policy: same-origin`` and
 ``Cross-Origin-Embedder-Policy: require-corp``, without which a page's
 workers cannot share its memory. Open it, and the browser's console to
 see what the programs print.
+
+Any server that sends those headers will do. One that cannot, such as
+GitHub Pages, still works: ``web/coi.js``, which the page loads first,
+installs itself as the page's service worker and loads the page again
+through it, once; the service worker adds the two headers to everything
+the page and its workers fetch. Until then the page says it is setting
+up. A browser that refuses service workers, as some private windows do,
+cannot run the page from such a server.
+
+Publishing it
+=============
+
+``.github/workflows/pages.yml`` builds the page on GitHub and publishes
+``web/`` as the repository's GitHub Pages site on every push to main. It
+builds from tcspecial's main, checked out beside this repository, with
+the dated nightly the workflow names and the ``wasm-bindgen`` that
+``Cargo.lock`` names. A change to tcspecial alone is published by running
+the workflow by hand, from the repository's Actions tab or with:
+
+.. code-block:: console
+
+   $ gh workflow run pages.yml

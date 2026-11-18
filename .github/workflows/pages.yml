@@ -1,0 +1,70 @@
+# Builds the page and publishes it as the GitHub Pages site,
+# https://vomlehn.github.io/tcswebasm/, on every push to main and by hand:
+# run it by hand to publish a change to tcspecial.
+#
+# The page's WebAssembly is built, not committed: web/pkg is ignored. It is
+# built from tcspecial's main, checked out beside this repository as it is
+# for `make build` at home, with the dated nightly named below and the
+# wasm-bindgen that Cargo.lock names. Pages cannot send the headers that
+# let the page share memory between threads; web/coi.js, the page's service
+# worker, adds them.
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publication at a time; a newer push replaces one still waiting.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  NIGHTLY: nightly-2026-10-20
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tcswebasm
+      - uses: actions/checkout@v4
+        with:
+          repository: vomlehn/tcspecial
+          path: tcspecial
+      - name: Install the nightly toolchain
+        run: |
+          rustup toolchain install "$NIGHTLY" --profile minimal \
+              --component rust-src --target wasm32-unknown-unknown
+      - name: Install wasm-bindgen
+        working-directory: tcswebasm
+        run: |
+          version=$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock |
+              sed -n 's/^version = "\(.*\)"$/\1/p')
+          cargo install --locked wasm-bindgen-cli --version "$version"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            tcswebasm/target
+          key: wasm-${{ env.NIGHTLY }}-${{ hashFiles('tcswebasm/Cargo.lock') }}
+      - name: Build the page
+        working-directory: tcswebasm
+        run: make build NIGHTLY="$NIGHTLY"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: tcswebasm/web
+      - id: deployment
+        uses: actions/deploy-pages@v4

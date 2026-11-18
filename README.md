@@ -4,7 +4,7 @@ The TCSpecial examples in a web page: tcspecial, tcs-sim and tcs-moc,
 built from tcspecial's source for WebAssembly, running on the browser
 substitutes in its `tcsos` crate. The page runs the thermostat example,
 windows and all. Nothing to install for whoever
-opens the page.
+opens the page: https://vomlehn.github.io/tcswebasm/
 
 See [Running TCS in a Browser](docs/manual.rst)
 ([as a page](docs/manual.html)).

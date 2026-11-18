@@ -372,6 +372,8 @@ repository runs the same programs, built from the same source, in a web
 page: nothing to install, and nothing to build for whoever opens the page.
 It is for showing TCS to anyone with a browser, not for flying: everything
 in it is simulated.</p>
+<p>It is published at <a class="reference external" href="https://vomlehn.github.io/tcswebasm/">https://vomlehn.github.io/tcswebasm/</a>: see
+<a class="reference internal" href="#publishing-it">Publishing it</a>.</p>
 </div>
 <div class="section" id="what-runs">
 <h1>What runs</h1>
@@ -482,6 +484,25 @@ page cross-origin isolated, <tt class="docutils literal"><span class="pre">Cross
 <tt class="docutils literal"><span class="pre">Cross-Origin-Embedder-Policy:</span> <span class="pre">require-corp</span></tt>, without which a page's
 workers cannot share its memory. Open it, and the browser's console to
 see what the programs print.</p>
+<p>Any server that sends those headers will do. One that cannot, such as
+GitHub Pages, still works: <tt class="docutils literal">web/coi.js</tt>, which the page loads first,
+installs itself as the page's service worker and loads the page again
+through it, once; the service worker adds the two headers to everything
+the page and its workers fetch. Until then the page says it is setting
+up. A browser that refuses service workers, as some private windows do,
+cannot run the page from such a server.</p>
+</div>
+<div class="section" id="publishing-it">
+<h1>Publishing it</h1>
+<p><tt class="docutils literal">.github/workflows/pages.yml</tt> builds the page on GitHub and publishes
+<tt class="docutils literal">web/</tt> as the repository's GitHub Pages site on every push to main. It
+builds from tcspecial's main, checked out beside this repository, with
+the dated nightly the workflow names and the <tt class="docutils literal"><span class="pre">wasm-bindgen</span></tt> that
+<tt class="docutils literal">Cargo.lock</tt> names. A change to tcspecial alone is published by running
+the workflow by hand, from the repository's Actions tab or with:</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$ </span>gh<span class="whitespace"> </span>workflow<span class="whitespace"> </span>run<span class="whitespace"> </span>pages.yml
+</pre>
 </div>
 </div>
 </body>

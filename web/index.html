@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TCSpecial in a Browser</title>
+  <link rel="icon" href="data:,">
+  <!-- Isolates the page where its server will not: see coi.js. -->
+  <script src="coi.js"></script>
   <style>
     :root { color-scheme: light dark; }
     body { margin: 0; padding: 16px; font-family: sans-serif;
@@ -18,12 +21,20 @@
 </head>
 <body>
   <p>TCSpecial's thermostat, running in this page.</p>
+  <p id="waiting" hidden>Setting up the page; if nothing appears, load it
+    again. This browser must allow service workers, which a private window
+    may not.</p>
   <div id="windows"></div>
   <script type="module">
     import init from "./pkg/tcswebasm.js";
     // Long stacks, for a panic said in the console.
     Error.stackTraceLimit = 100;
-    init();
+    // Threads need an isolated page; coi.js loads it again once it is.
+    if (window.crossOriginIsolated) {
+      init();
+    } else {
+      document.getElementById("waiting").hidden = false;
+    }
   </script>
 </body>
 </html>

@@ -20,13 +20,15 @@ RUSTFLAGS_THREADS := -C target-feature=+atomics,+bulk-memory,+mutable-globals \
 	-C link-arg=--export=__wasm_init_tls -C link-arg=--export=__tls_size \
 	-C link-arg=--export=__tls_align -C link-arg=--export=__tls_base
 TARGET := wasm32-unknown-unknown
+# The nightly toolchain: GitHub's build names a dated one.
+NIGHTLY ?= nightly
 
 .PHONY: build
 # tcslog finds the clock's resolution where it is built, which for a page
 # it cannot: 1 has the writer find it as it runs.
 build:
 	TIMER_RESOLUTION=1 RUSTFLAGS='$(RUSTFLAGS_THREADS)' \
-		cargo +nightly build --release \
+		cargo +$(NIGHTLY) build --release \
 		--target $(TARGET) -Z build-std=std,panic_abort
 	wasm-bindgen target/$(TARGET)/release/tcswebasm.wasm \
 		--out-dir web/pkg --target web
