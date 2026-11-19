@@ -14,8 +14,10 @@
     /* Each program's window, on a canvas of its own: see src/lib.rs. */
     #windows { display: flex; flex-wrap: wrap; gap: 16px;
                align-items: flex-start; }
-    .window { border: 1px solid GrayText; box-shadow: 0 2px 8px #0004; }
-    .window canvas { display: block; }
+    .window { border: 1px solid GrayText; box-shadow: 0 2px 8px #0004;
+              overflow-x: auto; overflow-y: hidden; }
+    /* Scaled down to fit the screen by fit() below, from its top left. */
+    .window canvas { display: block; transform-origin: 0 0; }
     .window[hidden] { display: none; }
   </style>
 </head>
@@ -54,6 +56,73 @@
     };
     document.getElementById("about").textContent = about[example] ??
       "TCSpecial's thermostat, running in this page.";
+    // Each window scaled down, never up, to fit the page's width; and on a
+    // touch screen to fit the screen's height too, so that each window is
+    // seen whole and the page scrolls from one to the next. A window that
+    // says which part of it must fit, data-fit -- tcs-sim's lander pane --
+    // is scaled to fit that part, and its frame scrolls across to the rest.
+    // A scale is a transform, which leaves the canvas's own size -- what
+    // the window is drawn at, and what a pointer's place is measured in --
+    // as it is; the frame around it is given the scaled size, for the
+    // page's layout. See tcs-ui's windows::regions.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    const areaOf = (said) => said ? said.split(" ").map(Number) : null;
+    function fit() {
+      const page = document.body;
+      const style = getComputedStyle(page);
+      const across = page.clientWidth - parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight) - 2;
+      const down = window.innerHeight - 2 * parseFloat(style.paddingTop) - 2;
+      for (const frame of document.querySelectorAll(".window")) {
+        const canvas = frame.querySelector("canvas");
+        const wide = canvas.offsetWidth, high = canvas.offsetHeight;
+        if (frame.hidden || !wide || !high) continue;
+        const part = touch && areaOf(canvas.dataset.fit);
+        const [fitWide, fitHigh] = part && part[2] > 0 && part[3] > 0
+          ? [part[0] + part[2], part[1] + part[3]] : [wide, high];
+        let scale = Math.min(1, across / fitWide);
+        if (touch) scale = Math.min(scale, down / fitHigh);
+        canvas.style.transform = scale < 1 ? `scale(${scale})` : "";
+        frame.style.width = `${Math.min(across, wide * scale)}px`;
+        frame.style.height = `${high * scale}px`;
+      }
+    }
+    // A touch that starts where a window is dragged in, data-hold -- the
+    // lander's joystick -- is the window's; anywhere else it may scroll.
+    function holding(event) {
+      const canvas = event.currentTarget;
+      const hold = areaOf(canvas.dataset.hold);
+      if (!hold || !(hold[2] > 0)) return;
+      const box = canvas.getBoundingClientRect();
+      const scale = box.width / canvas.offsetWidth;
+      for (const t of event.changedTouches) {
+        const x = (t.clientX - box.left) / scale;
+        const y = (t.clientY - box.top) / scale;
+        if (x >= hold[0] && x <= hold[0] + hold[2] &&
+            y >= hold[1] && y <= hold[1] + hold[3]) {
+          event.preventDefault();
+          return;
+        }
+      }
+    }
+    // Again whenever a window is made, shown, hidden, resized or says what
+    // must fit, or the page is resized.
+    const resized = new ResizeObserver(fit);
+    new MutationObserver((changes) => {
+      for (const change of changes) {
+        for (const node of change.addedNodes) {
+          const canvas = node.querySelector && node.querySelector("canvas");
+          if (canvas) {
+            resized.observe(canvas);
+            canvas.addEventListener("touchstart", holding, { passive: false });
+          }
+        }
+      }
+      fit();
+    }).observe(document.getElementById("windows"),
+               { childList: true, subtree: true, attributes: true,
+                 attributeFilter: ["hidden", "data-fit"] });
+    window.addEventListener("resize", fit);
     // Threads need an isolated page; coi.js loads it again once it is.
     if (window.crossOriginIsolated) {
       init();

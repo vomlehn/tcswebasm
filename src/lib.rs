@@ -383,7 +383,14 @@ fn windows() -> Result<(), String> {
     let backend = i_slint_backend_winit::Backend::builder()
         .with_spawn_event_loop(true)
         .with_window_attributes_hook(|attributes| {
-            attributes.with_canvas(new_canvas()).with_active(false)
+            // A touch on a window scrolls the page unless the window
+            // keeps it, as one dragged in does: see tcs-ui's
+            // windows::holds_touch. On a phone, scrolling is the only way to
+            // reach a window below the first.
+            attributes
+                .with_canvas(new_canvas())
+                .with_active(false)
+                .with_prevent_default(false)
         })
         .build()
         .map_err(|e| e.to_string())?;

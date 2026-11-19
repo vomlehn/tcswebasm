@@ -99,13 +99,16 @@ To fly it:
 
 #. The lander starts falling as soon as the vehicles ask the simulator for
    their first readings, before anyone flies it, so the first flight
-   crashes. In lander-station's window, press **Restart**: the lander
-   starts again at the top left, and the station sees it 1.3 s later.
+   crashes. lander-station turns the lander's autorestart on as soon as
+   lander-a is connected, so the lander starts again at the top left by
+   itself a few seconds after each crash. **Restart** in lander-station's
+   window starts it again at once; **Disable Autorestart** leaves it down
+   after a crash.
 #. In tcs-sim's window, press **Autoland** for the autopilot to land it, or
    hold the button down in the joystick's middle square and drag along an
-   arm: left or right for the side thrusters, up for the engine.
-#. **Enable Autorestart** in lander-station's window has the lander start
-   again by itself a few seconds after each crash.
+   arm: left or right for the side thrusters, up for the engine. The
+   autopilot gives up while the lander lies crashed, so press it while the
+   lander flies.
 
 What each program prints is in the browser's console.
 
@@ -154,6 +157,17 @@ Files
   Held in the page's memory. The examples' configurations are put there
   before anything starts; what the programs write is kept for as long as
   the page is open.
+
+On a phone
+==========
+
+Each window is scaled down to fit the screen, and the page scrolls from
+one window to the next. tcs-sim's window, in the lander example, is scaled
+so that its lander pane fits -- the picture, the values, the joystick and
+the buttons -- and its payload panels are beside it, a sideways swipe away.
+A swipe anywhere scrolls, but one that starts on the joystick, which flies
+the lander. A window says which part of it must fit, and which keeps its
+touches, with tcs-ui's ``windows::regions``.
 
 What a page cannot do
 =====================
