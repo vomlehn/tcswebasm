@@ -452,6 +452,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
+name = "beacon_example"
+version = "0.1.0"
+dependencies = [
+ "slint",
+ "slint-build",
+ "tcs-ui",
+ "tcsmoc",
+ "tcsos",
+ "tcsprotocol",
+]
+
+[[package]]
 name = "bincode"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4626,6 +4638,7 @@ dependencies = [
 name = "tcswebasm"
 version = "0.1.0"
 dependencies = [
+ "beacon_example",
  "console_error_panic_hook",
  "console_log",
  "i-slint-backend-winit",

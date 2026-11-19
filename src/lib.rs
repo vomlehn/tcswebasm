@@ -84,6 +84,22 @@ const FILES: &[(&str, &str)] = &[
         include_str!("../../tcspecial/examples/lander-common/lander-sim.yaml"),
     ),
     (
+        "/examples/beacon/beacon.ytcs",
+        include_str!("../../tcspecial/examples/beacon/beacon.ytcs"),
+    ),
+    (
+        "/examples/beacon/beacon-sim.yaml",
+        include_str!("../../tcspecial/examples/beacon/beacon-sim.yaml"),
+    ),
+    (
+        "/examples/beacon/beacon.xtcs",
+        include_str!("../../tcspecial/examples/beacon/beacon.xtcs"),
+    ),
+    (
+        "/examples/beacon/beacon.xtce",
+        include_str!("../../tcspecial/examples/beacon/beacon.xtce"),
+    ),
+    (
         "/examples/tees/tees.ytcs",
         include_str!("../../tcspecial/examples/tees/tees.ytcs"),
     ),
@@ -243,6 +259,21 @@ fn lander_station(_args: Vec<String>) -> i32 {
     0
 }
 
+/// The beacon example's window, as the page starts it: tcspecial's beacon,
+/// and a button that starts and stops tcspecial.
+///
+/// # Arguments
+///
+/// * `_args` - Its arguments, which it reads from its program's own.
+///
+/// # Returns
+///
+/// Nought, where it returns rather than exits.
+fn beacon(_args: Vec<String>) -> i32 {
+    beacon_example::program::main();
+    0
+}
+
 /// An example the page runs, and the ground station it starts it with.
 struct Example {
     /// Its name, as the page's address asks for it: `?example=NAME`.
@@ -265,6 +296,14 @@ const EXAMPLES: &[Example] = &[
     Example {
         name: "lander",
         command: &["/bin/lander-station", "--no-memlock"],
+    },
+    Example {
+        name: "beacon",
+        command: &[
+            "/bin/beacon",
+            "--no-memlock",
+            "/examples/beacon/beacon.ytcs",
+        ],
     },
     Example {
         name: "tees",
@@ -370,6 +409,7 @@ pub fn start() {
     tcsos::process::register("tcs-sim", tcs_sim);
     tcsos::process::register("tcs-moc", tcs_moc);
     tcsos::process::register("lander-station", lander_station);
+    tcsos::process::register("beacon", beacon);
     let example = example();
     let [program, args @ ..] = example.command else {
         return;

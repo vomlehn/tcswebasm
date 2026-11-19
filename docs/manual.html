@@ -377,10 +377,10 @@ in it is simulated.</p>
 </div>
 <div class="section" id="what-runs">
 <h1>What runs</h1>
-<p>Four of tcspecial's examples, chosen by the page's address: the
+<p>Five of tcspecial's examples, chosen by the page's address: the
 thermostat, at the page's own address or with <tt class="docutils literal"><span class="pre">?example=thermostat</span></tt>; the
-lunar lander, with <tt class="docutils literal"><span class="pre">?example=lander</span></tt>; and two small ones, <tt class="docutils literal">tees</tt> and
-<tt class="docutils literal">minimal</tt>. The links at the top of the page switch between them.</p>
+lunar lander, with <tt class="docutils literal"><span class="pre">?example=lander</span></tt>; the beacon, with
+<tt class="docutils literal"><span class="pre">?example=beacon</span></tt>; and two small ones, <tt class="docutils literal">tees</tt> and <tt class="docutils literal">minimal</tt>. The links at the top of the page switch between them.</p>
 <div class="section" id="the-thermostat">
 <h2>The thermostat</h2>
 <p>The thermostat example, as <tt class="docutils literal">make runmocy
@@ -406,6 +406,14 @@ reporting and the heaters can be driven.</li>
 arrive in the panels, and the plot draws the temperature, which tcspecial
 holds within the band by switching the heaters.</li>
 </ol>
+</div>
+<div class="section" id="the-beacon">
+<h2>The beacon</h2>
+<p><tt class="docutils literal"><span class="pre">?example=beacon</span></tt> runs the beacon example's own window, which shows what
+a ground station knows of a vehicle without asking it anything: whether
+it is beaconing, which build it is and which configuration it serves.
+Press <strong>Start tcspecial</strong> and the beacons arrive, the indicator lit; press
+<strong>Stop tcspecial</strong> and they cease, the indicator going out a little after.</p>
 </div>
 <div class="section" id="the-small-examples">
 <h2>The small examples</h2>
@@ -463,11 +471,15 @@ the system goes through <tt class="docutils literal">tcsos</tt>, in tcspecial's 
 Linux is Linux and in a page is the page's own substitutes:</p>
 <dl class="docutils">
 <dt>Programs</dt>
-<dd>Each program -- tcs-moc, lander-station, tcs-sim, tcspecial and its
-supervisor's child, segsend -- is a
+<dd>Each program -- tcs-moc, lander-station, the beacon window, tcs-sim,
+tcspecial and its supervisor's child, segsend -- is a
 function the page registers under its name and starts on a thread of its
 own, with its own arguments, variables, directory and stop flag. A stop
-asked of a program is what SIGTERM is on Linux.</dd>
+asked of a program is what SIGTERM is on Linux. A program's statics are
+its own too, where its code says so with <tt class="docutils literal"><span class="pre">tcsos::local</span></tt>: tcspecial's
+stop flags and state, which every tcspecial in the page would otherwise
+share. When a program ends its sockets close, as a process's do, and
+what it started to die with it is asked to stop.</dd>
 <dt>Threads</dt>
 <dd>Each is a Web Worker sharing the page's memory, which needs the page to be
 cross-origin isolated: see <a class="reference internal" href="#serving-it">Serving it</a>.</dd>

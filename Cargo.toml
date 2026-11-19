@@ -27,6 +27,8 @@ tcs-sim = { path = "../tcspecial/tcs-sim" }
 tcs-moc = { path = "../tcspecial/tcs-moc" }
 # The lander's ground station, which needs no Yamcs.
 lander-example = { path = "../tcspecial/examples/lander" }
+# The beacon example's window, which starts and stops tcspecial.
+beacon_example = { path = "../tcspecial/examples/beacon" }
 # The windows' toolkit. Its winit backend is named for itself, at the
 # version slint is, because it is what lets the page give each window a
 # canvas of its own and run the event loop without blocking the page.

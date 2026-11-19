@@ -18,10 +18,10 @@ It is published at https://vomlehn.github.io/tcswebasm/: see
 What runs
 =========
 
-Four of tcspecial's examples, chosen by the page's address: the
+Five of tcspecial's examples, chosen by the page's address: the
 thermostat, at the page's own address or with ``?example=thermostat``; the
-lunar lander, with ``?example=lander``; and two small ones, ``tees`` and
-``minimal``. The links at the top of the page switch between them.
+lunar lander, with ``?example=lander``; the beacon, with
+``?example=beacon``; and two small ones, ``tees`` and ``minimal``. The links at the top of the page switch between them.
 
 The thermostat
 --------------
@@ -48,6 +48,15 @@ To watch the thermostat work:
 #. In tcs-moc's window, press **Enable** on each data handler. Readings
    arrive in the panels, and the plot draws the temperature, which tcspecial
    holds within the band by switching the heaters.
+
+The beacon
+----------
+
+``?example=beacon`` runs the beacon example's own window, which shows what
+a ground station knows of a vehicle without asking it anything: whether
+it is beaconing, which build it is and which configuration it serves.
+Press **Start tcspecial** and the beacons arrive, the indicator lit; press
+**Stop tcspecial** and they cease, the indicator going out a little after.
 
 The small examples
 ------------------
@@ -108,11 +117,15 @@ the system goes through ``tcsos``, in tcspecial's repository, which on
 Linux is Linux and in a page is the page's own substitutes:
 
 Programs
-  Each program -- tcs-moc, lander-station, tcs-sim, tcspecial and its
-  supervisor's child, segsend -- is a
+  Each program -- tcs-moc, lander-station, the beacon window, tcs-sim,
+  tcspecial and its supervisor's child, segsend -- is a
   function the page registers under its name and starts on a thread of its
   own, with its own arguments, variables, directory and stop flag. A stop
-  asked of a program is what SIGTERM is on Linux.
+  asked of a program is what SIGTERM is on Linux. A program's statics are
+  its own too, where its code says so with ``tcsos::local``: tcspecial's
+  stop flags and state, which every tcspecial in the page would otherwise
+  share. When a program ends its sockets close, as a process's do, and
+  what it started to die with it is asked to stop.
 
 Threads
   Each is a Web Worker sharing the page's memory, which needs the page to be
