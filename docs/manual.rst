@@ -18,10 +18,10 @@ It is published at https://vomlehn.github.io/tcswebasm/: see
 What runs
 =========
 
-Two of tcspecial's examples, chosen by the page's address: the thermostat,
-at the page's own address or with ``?example=thermostat``, and the lunar
-lander, with ``?example=lander``. The links at the top of the page switch
-between them.
+Four of tcspecial's examples, chosen by the page's address: the
+thermostat, at the page's own address or with ``?example=thermostat``; the
+lunar lander, with ``?example=lander``; and two small ones, ``tees`` and
+``minimal``. The links at the top of the page switch between them.
 
 The thermostat
 --------------
@@ -48,6 +48,20 @@ To watch the thermostat work:
 #. In tcs-moc's window, press **Enable** on each data handler. Readings
    arrive in the panels, and the plot draws the temperature, which tcspecial
    holds within the band by switching the heaters.
+
+The small examples
+------------------
+
+``?example=tees`` and ``?example=minimal`` run tcs-moc on those examples
+exactly as the thermostat runs, and are watched the same way: Connect,
+Enable each payload in tcs-sim's window, and Enable each data handler in
+tcs-moc's. ``tees`` copies a command back to the ground, copies a reading
+aboard and drops data; ``minimal`` is one payload whose telemetry goes to
+the ground. See tcspecial's ``examples/README.md`` for each.
+
+The other examples need what a page has not got: a kernel device (gpio,
+can, iio), a serial line (battery), or a program in Python (consolidator,
+descent and the examples watched through Yamcs).
 
 The lunar lander
 ----------------

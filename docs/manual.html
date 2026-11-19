@@ -377,10 +377,10 @@ in it is simulated.</p>
 </div>
 <div class="section" id="what-runs">
 <h1>What runs</h1>
-<p>Two of tcspecial's examples, chosen by the page's address: the thermostat,
-at the page's own address or with <tt class="docutils literal"><span class="pre">?example=thermostat</span></tt>, and the lunar
-lander, with <tt class="docutils literal"><span class="pre">?example=lander</span></tt>. The links at the top of the page switch
-between them.</p>
+<p>Four of tcspecial's examples, chosen by the page's address: the
+thermostat, at the page's own address or with <tt class="docutils literal"><span class="pre">?example=thermostat</span></tt>; the
+lunar lander, with <tt class="docutils literal"><span class="pre">?example=lander</span></tt>; and two small ones, <tt class="docutils literal">tees</tt> and
+<tt class="docutils literal">minimal</tt>. The links at the top of the page switch between them.</p>
 <div class="section" id="the-thermostat">
 <h2>The thermostat</h2>
 <p>The thermostat example, as <tt class="docutils literal">make runmocy
@@ -406,6 +406,18 @@ reporting and the heaters can be driven.</li>
 arrive in the panels, and the plot draws the temperature, which tcspecial
 holds within the band by switching the heaters.</li>
 </ol>
+</div>
+<div class="section" id="the-small-examples">
+<h2>The small examples</h2>
+<p><tt class="docutils literal"><span class="pre">?example=tees</span></tt> and <tt class="docutils literal"><span class="pre">?example=minimal</span></tt> run tcs-moc on those examples
+exactly as the thermostat runs, and are watched the same way: Connect,
+Enable each payload in tcs-sim's window, and Enable each data handler in
+tcs-moc's. <tt class="docutils literal">tees</tt> copies a command back to the ground, copies a reading
+aboard and drops data; <tt class="docutils literal">minimal</tt> is one payload whose telemetry goes to
+the ground. See tcspecial's <tt class="docutils literal">examples/README.md</tt> for each.</p>
+<p>The other examples need what a page has not got: a kernel device (gpio,
+can, iio), a serial line (battery), or a program in Python (consolidator,
+descent and the examples watched through Yamcs).</p>
 </div>
 <div class="section" id="the-lunar-lander">
 <h2>The lunar lander</h2>

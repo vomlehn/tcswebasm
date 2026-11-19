@@ -83,6 +83,38 @@ const FILES: &[(&str, &str)] = &[
         "/examples/lander-common/lander-sim.yaml",
         include_str!("../../tcspecial/examples/lander-common/lander-sim.yaml"),
     ),
+    (
+        "/examples/tees/tees.ytcs",
+        include_str!("../../tcspecial/examples/tees/tees.ytcs"),
+    ),
+    (
+        "/examples/tees/tees-sim.yaml",
+        include_str!("../../tcspecial/examples/tees/tees-sim.yaml"),
+    ),
+    (
+        "/examples/tees/tees.xtcs",
+        include_str!("../../tcspecial/examples/tees/tees.xtcs"),
+    ),
+    (
+        "/examples/tees/tees.xtce",
+        include_str!("../../tcspecial/examples/tees/tees.xtce"),
+    ),
+    (
+        "/examples/minimal/minimal.ytcs",
+        include_str!("../../tcspecial/examples/minimal/minimal.ytcs"),
+    ),
+    (
+        "/examples/minimal/minimal-sim.yaml",
+        include_str!("../../tcspecial/examples/minimal/minimal-sim.yaml"),
+    ),
+    (
+        "/examples/minimal/minimal.xtcs",
+        include_str!("../../tcspecial/examples/minimal/minimal.xtcs"),
+    ),
+    (
+        "/examples/minimal/minimal.xtce",
+        include_str!("../../tcspecial/examples/minimal/minimal.xtce"),
+    ),
 ];
 
 /// A configuration without its telemetry log: tcslog, which writes it, is
@@ -233,6 +265,24 @@ const EXAMPLES: &[Example] = &[
     Example {
         name: "lander",
         command: &["/bin/lander-station", "--no-memlock"],
+    },
+    Example {
+        name: "tees",
+        command: &[
+            "/bin/tcs-moc",
+            "--simulate=all",
+            "--no-memlock",
+            "/examples/tees/tees.ytcs",
+        ],
+    },
+    Example {
+        name: "minimal",
+        command: &[
+            "/bin/tcs-moc",
+            "--simulate=all",
+            "--no-memlock",
+            "/examples/minimal/minimal.ytcs",
+        ],
     },
 ];
 
