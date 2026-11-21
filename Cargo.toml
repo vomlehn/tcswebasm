@@ -54,6 +54,8 @@ log = "0.4"
 console_log = "1"
 
 [profile.release]
-# Small enough to download, and the panics still say where.
-opt-level = "s"
+# Fast: the page draws its windows on one thread, and a slow machine runs
+# short of time there. Built for speed rather than size, the download is
+# about the same; the panics still say where.
+opt-level = 3
 debug = false
