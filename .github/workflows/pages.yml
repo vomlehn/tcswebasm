@@ -40,10 +40,10 @@ jobs:
       # The build cache this run used, which tidy keeps.
       cache-key: ${{ steps.key.outputs.key }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: tcswebasm
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: vomlehn/tcspecial
           path: tcspecial
@@ -62,7 +62,7 @@ jobs:
         run: |
           echo "key=wasm-$NIGHTLY-${{ hashFiles('tcswebasm/Cargo.lock') }}" \
               >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -71,12 +71,12 @@ jobs:
       - name: Build the page
         working-directory: tcswebasm
         run: make build NIGHTLY="$NIGHTLY"
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: tcswebasm/web
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # Keeps GitHub's storage to what the next run needs, once the page is
   # published: deletes every build cache but the one this run used, and every
