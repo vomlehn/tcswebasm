@@ -101,9 +101,11 @@ To fly it:
    their first readings, before anyone flies it, so the first flight
    crashes. lander-station turns the lander's autorestart on as soon as
    lander-a is connected, so the lander starts again at the top left by
-   itself a few seconds after each crash. **Restart** in lander-station's
-   window starts it again at once; **Disable Autorestart** leaves it down
-   after a crash.
+   itself a few seconds after each crash, and 10 s after each landing it
+   stays on the pad for, with tcs-sim's Autoland flying it each time, until
+   someone takes the joystick. **Restart** in lander-station's window starts
+   it again at once; **Disable Autorestart** leaves it down after a crash,
+   and on the pad after a landing.
 #. In tcs-sim's window, press **Autoland** for the autopilot to land it, or
    hold the button down in the joystick's middle square and drag along an
    arm: left or right for the side thrusters, up for the engine. The
