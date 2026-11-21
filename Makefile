@@ -3,11 +3,12 @@
 #   make build   build the page's WebAssembly into web/pkg: nightly Rust,
 #                with std rebuilt for threads
 #   make serve   serve web/ at http://127.0.0.1:8000, cross-origin isolated
-#   make html    write docs/manual.html from docs/manual.rst
-#   make check   fail where docs/manual.html is behind docs/manual.rst
+#   make html    write README.html from README.md, and docs/manual.html
+#                from docs/manual.rst
+#   make check   fail where either page is behind its source
 #   make hooks   have git run tcs-helpers' pre-commit hook here, which
-#                rebuilds docs/manual.html with each commit that changes
-#                docs/manual.rst, and adds it to the commit
+#                rebuilds README.html or docs/manual.html with each commit
+#                that changes its source, and adds it to the commit
 
 TCS_HELPERS ?= ../tcs-helpers
 
@@ -38,12 +39,18 @@ serve:
 	python3 serve.py
 
 .PHONY: html
-html:
+html: README.html
 	$(MAKE) -C docs html
+
+# README.html, the README as a page of its own, its links followed in a
+# browser: pandoc, standalone, its first heading the page's title.
+README.html: README.md
+	pandoc --standalone --shift-heading-level-by=-1 \
+		--metadata pagetitle=tcswebasm README.md -o README.html
 
 .PHONY: check
 check:
-	$(TCS_HELPERS)/bin/html-pages check docs
+	$(TCS_HELPERS)/bin/html-pages check . docs
 
 .PHONY: hooks
 hooks:
