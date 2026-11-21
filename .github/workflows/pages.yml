@@ -7,7 +7,8 @@
 # for `make build` at home, with the dated nightly named below and the
 # wasm-bindgen that Cargo.lock names. Pages cannot send the headers that
 # let the page share memory between threads; web/coi.js, the page's service
-# worker, adds them.
+# worker, adds them. Once it is published, the tidy job deletes the build
+# caches and uploads of the page that the next run will not need.
 
 name: Pages
 
@@ -35,6 +36,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      # The build cache this run used, which tidy keeps.
+      cache-key: ${{ steps.cache.outputs.cache-primary-key }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,7 +57,8 @@ jobs:
           version=$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock |
               sed -n 's/^version = "\(.*\)"$/\1/p')
           cargo install --locked wasm-bindgen-cli --version "$version"
-      - uses: actions/cache@v4
+      - id: cache
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -68,3 +73,30 @@ jobs:
           path: tcswebasm/web
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Keeps GitHub's storage to what the next run needs, once the page is
+  # published: deletes every build cache but the one this run used, and every
+  # earlier upload of the page. Failing here leaves the page published.
+  tidy:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      KEEP: ${{ needs.publish.outputs.cache-key }}
+      RUN: ${{ github.run_id }}
+    steps:
+      - name: Delete the build caches no longer used
+        run: |
+          gh cache list --limit 100 --json id,key \
+              --jq ".[] | select(.key != \"$KEEP\") | .id" |
+              xargs -r -n1 gh cache delete
+      - name: Delete the earlier uploads of the page
+        run: |
+          gh api --paginate \
+              "repos/$GH_REPO/actions/artifacts?name=github-pages" \
+              --jq ".artifacts[] | select(.workflow_run.id != $RUN) | .id" |
+              xargs -r -I{} gh api -X DELETE \
+              "repos/$GH_REPO/actions/artifacts/{}"
