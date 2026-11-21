@@ -38,7 +38,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     outputs:
       # The build cache this run used, which tidy keeps.
-      cache-key: ${{ steps.cache.outputs.cache-primary-key }}
+      cache-key: ${{ steps.key.outputs.key }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,13 +57,17 @@ jobs:
           version=$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock |
               sed -n 's/^version = "\(.*\)"$/\1/p')
           cargo install --locked wasm-bindgen-cli --version "$version"
-      - id: cache
-        uses: actions/cache@v4
+      # The build cache's name, named once so that tidy keeps it.
+      - id: key
+        run: |
+          echo "key=wasm-$NIGHTLY-${{ hashFiles('tcswebasm/Cargo.lock') }}" \
+              >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             tcswebasm/target
-          key: wasm-${{ env.NIGHTLY }}-${{ hashFiles('tcswebasm/Cargo.lock') }}
+          key: ${{ steps.key.outputs.key }}
       - name: Build the page
         working-directory: tcswebasm
         run: make build NIGHTLY="$NIGHTLY"
@@ -90,6 +94,8 @@ jobs:
     steps:
       - name: Delete the build caches no longer used
         run: |
+          # With no name to keep, keep everything rather than nothing.
+          [ -n "$KEEP" ] || { echo "no build cache named" >&2; exit 1; }
           gh cache list --limit 100 --json id,key \
               --jq ".[] | select(.key != \"$KEEP\") | .id" |
               xargs -r -n1 gh cache delete
