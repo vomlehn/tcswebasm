@@ -582,6 +582,20 @@ the workflow by hand, from the repository's Actions tab or with:</p>
 <pre class="code console literal-block">
 <span class="generic prompt">$ </span>gh<span class="whitespace"> </span>workflow<span class="whitespace"> </span>run<span class="whitespace"> </span>pages.yml
 </pre>
+<p>The page is published only once it has been seen to start every example.
+Before publishing, the workflow runs <tt class="docutils literal"><span class="pre">check-page.mjs</span></tt>, which serves
+<tt class="docutils literal">web/</tt> the way GitHub Pages does, with no isolation headers, and loads
+each example in headless Chrome. An example passes when the page is
+isolated, through <tt class="docutils literal">web/coi.js</tt>, and its windows are shown and drawn
+with nothing thrown or panicking, in the page or its workers. Any
+failure stops the run, and the site already published stays as it was.
+After publishing, the workflow deletes the build caches and uploads of
+the page that the next run will not need.</p>
+<p>The same check runs at home, given Node 22 and Chrome, once the page is
+built:</p>
+<pre class="code console literal-block">
+<span class="generic prompt">$ </span>make<span class="whitespace"> </span>page-check
+</pre>
 </div>
 </div>
 </body>

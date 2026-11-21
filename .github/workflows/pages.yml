@@ -7,8 +7,10 @@
 # for `make build` at home, with the dated nightly named below and the
 # wasm-bindgen that Cargo.lock names. Pages cannot send the headers that
 # let the page share memory between threads; web/coi.js, the page's service
-# worker, adds them. Once it is published, the tidy job deletes the build
-# caches and uploads of the page that the next run will not need.
+# worker, adds them. It is published only once check-page.mjs, in headless
+# Chrome, has seen it start every example; once it is published, the tidy
+# job deletes the build caches and uploads of the page that the next run
+# will not need.
 
 name: Pages
 
@@ -71,6 +73,14 @@ jobs:
       - name: Build the page
         working-directory: tcswebasm
         run: make build NIGHTLY="$NIGHTLY"
+      # Not published unless every example starts, served as Pages
+      # will serve it: see check-page.mjs.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check that the page starts each example
+        working-directory: tcswebasm
+        run: make page-check
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

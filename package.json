@@ -1,0 +1,12 @@
+{
+  "name": "tcswebasm-check",
+  "private": true,
+  "description": "What check-page.mjs, the check that the built page starts each example, needs.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "puppeteer-core": "25.15.0"
+  }
+}

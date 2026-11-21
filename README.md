@@ -26,6 +26,7 @@ See [Running TCS in a Browser](docs/manual.html), the manual
 
     make build   # nightly Rust: see the manual
     make serve   # then open http://127.0.0.1:8000
+    make page-check  # headless Chrome sees each example start
     make html    # README.html and docs/manual.html, from their sources
 
 README.html is made from this file, and tcs-helpers' pre-commit hook,

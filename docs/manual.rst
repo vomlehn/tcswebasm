@@ -240,3 +240,20 @@ the workflow by hand, from the repository's Actions tab or with:
 .. code-block:: console
 
    $ gh workflow run pages.yml
+
+The page is published only once it has been seen to start every example.
+Before publishing, the workflow runs ``check-page.mjs``, which serves
+``web/`` the way GitHub Pages does, with no isolation headers, and loads
+each example in headless Chrome. An example passes when the page is
+isolated, through ``web/coi.js``, and its windows are shown and drawn
+with nothing thrown or panicking, in the page or its workers. Any
+failure stops the run, and the site already published stays as it was.
+After publishing, the workflow deletes the build caches and uploads of
+the page that the next run will not need.
+
+The same check runs at home, given Node 22 and Chrome, once the page is
+built:
+
+.. code-block:: console
+
+   $ make page-check

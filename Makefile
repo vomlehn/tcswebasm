@@ -3,6 +3,10 @@
 #   make build   build the page's WebAssembly into web/pkg: nightly Rust,
 #                with std rebuilt for threads
 #   make serve   serve web/ at http://127.0.0.1:8000, cross-origin isolated
+#   make page-check
+#                check, in headless Chrome, that the built page starts each
+#                example, served as GitHub Pages serves it: Node 22 and
+#                Chrome, CHROME naming it where google-chrome is not it
 #   make html    write README.html from README.md, and docs/manual.html
 #                from docs/manual.rst
 #   make check   fail where either page is behind its source
@@ -37,6 +41,15 @@ build:
 .PHONY: serve
 serve:
 	python3 serve.py
+
+.PHONY: page-check
+page-check: node_modules
+	node check-page.mjs
+
+# What check-page.mjs needs, as package-lock.json names it.
+node_modules: package.json package-lock.json
+	npm ci --no-audit --no-fund
+	touch node_modules
 
 .PHONY: html
 html: README.html
