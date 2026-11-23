@@ -12,6 +12,7 @@
 // google-chrome.
 
 import { spawn, execFileSync } from "node:child_process";
+import { createInterface } from "node:readline";
 import { setTimeout as sleep } from "node:timers/promises";
 import puppeteer from "puppeteer-core";
 
@@ -38,22 +39,33 @@ const FAILED = /panicked at|RuntimeError|unreachable executed/;
  * Pages does not.
  *
  * @return {Promise<import("node:child_process").ChildProcess>}  The
- *         server, once it answers.
+ *         server, once it listens: it says "Serving HTTP on" once it has
+ *         bound its port, unbuffered, and exits where it cannot.
  */
-async function serve() {
-	const server = spawn("python3", ["-m", "http.server", "--bind",
+function serve() {
+	const server = spawn("python3", ["-u", "-m", "http.server", "--bind",
 					 "127.0.0.1", "--directory", "web",
-					 String(PORT)], { stdio: "ignore" });
-	for (let tries = 0; tries < 50; tries++) {
-		try {
-			await fetch(`http://127.0.0.1:${PORT}/`);
-			return server;
-		} catch {
-			await sleep(200);
-		}
-	}
-	server.kill();
-	throw new Error("the file server did not start");
+					 String(PORT)],
+			     { stdio: ["ignore", "pipe", "ignore"] });
+	return new Promise((resolve, reject) => {
+		const failed = (why) => {
+			server.kill();
+			reject(new Error(`the file server did not start: ${why}`));
+		};
+		const timer = setTimeout(() => failed("it said nothing"),
+					 10000);
+		server.on("exit", (code) => {
+			clearTimeout(timer);
+			failed(`it exited, ${code}`);
+		});
+		createInterface({ input: server.stdout }).on("line", (line) => {
+			if (line.startsWith("Serving HTTP on")) {
+				clearTimeout(timer);
+				server.removeAllListeners("exit");
+				resolve(server);
+			}
+		});
+	});
 }
 
 /**
@@ -116,7 +128,7 @@ async function check(browser, name, windows) {
 				.filter((frame) => !frame.hidden &&
 					frame.querySelector("canvas")?.width !==
 					300).length >= count,
-			{ timeout: START_MS, polling: 500 }, windows);
+			{ timeout: START_MS, polling: "mutation" }, windows);
 		await sleep(RUN_MS);
 		const shown = await page.$$(".window:not([hidden]) canvas");
 		for (const [index, canvas] of shown.entries()) {
