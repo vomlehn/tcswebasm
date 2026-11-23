@@ -81,7 +81,7 @@ its ground station is ``lander_yamcs.py``, through Yamcs; neither Python
 nor Yamcs runs in a page, so the page runs ``lander-station``, the
 example's ground station in Rust, which does the same without them and
 runs on Linux as well (``make run-lander-station`` in tcspecial). It makes
-a landscape at random, says the seed in its window, starts tcs-sim and
+a landscape at random, starts tcs-sim and
 waits for it to be ready, then starts both tcspecials and sends each
 CONNECT until it answers with its configuration's checksum. Everything
 between it and the vehicles is held 1.3 s each way, the time light takes
