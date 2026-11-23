@@ -11,6 +11,12 @@
 # Chrome, has seen it start every example; once it is published, the tidy
 # job deletes the build caches and uploads of the page that the next run
 # will not need.
+#
+# The page is built and uploaded by one job and deployed by another, which
+# needs it, as GitHub's own Pages workflows are: an artifact is certain to
+# be found by a job that needs the one that uploaded it, but deploy-pages
+# in the same job looks for it before GitHub may list it, and then fails
+# with "No artifacts named github-pages".
 
 name: Pages
 
@@ -33,11 +39,8 @@ env:
   NIGHTLY: nightly-2026-10-20
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     outputs:
       # The build cache this run used, which tidy keeps.
       cache-key: ${{ steps.key.outputs.key }}
@@ -85,6 +88,14 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: tcswebasm/web
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v5
 
@@ -92,14 +103,14 @@ jobs:
   # published: deletes every build cache but the one this run used, and every
   # earlier upload of the page. Failing here leaves the page published.
   tidy:
-    needs: publish
+    needs: [build, publish]
     runs-on: ubuntu-latest
     permissions:
       actions: write
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      KEEP: ${{ needs.publish.outputs.cache-key }}
+      KEEP: ${{ needs.build.outputs.cache-key }}
       RUN: ${{ github.run_id }}
     steps:
       - name: Delete the build caches no longer used
