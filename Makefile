@@ -7,15 +7,15 @@
 #                check, in headless Chrome, that the built page starts each
 #                example, served as GitHub Pages serves it: Node 22 and
 #                Chrome, CHROME naming it where google-chrome is not it
-#   make html    write README.html from README.md, and docs/manual.html
+#   make html    write index.html from README.md, and docs/manual.html
 #                from docs/manual.rst
 #   make check   fail where either page is behind its source
 #   make hooks   have git run tcs-helpers' pre-commit hook here, which
-#                rebuilds README.html or docs/manual.html with each commit
+#                rebuilds index.html or docs/manual.html with each commit
 #                that changes its source, and adds it to the commit
 
 TCS_HELPERS ?= ../tcs-helpers
-TCS_HELPERS_REQUIRED := 0.12.0
+TCS_HELPERS_REQUIRED := 0.13.0
 
 # Threads: atomic instructions, and memory the page's workers share, which
 # the linker makes only when told, with the thread-local storage each
@@ -53,14 +53,14 @@ node_modules: package.json package-lock.json
 	touch node_modules
 
 .PHONY: html
-html: README.html
+html: index.html
 	$(MAKE) -C docs html
 
-# README.html, the README as a page of its own, its links followed in a
+# index.html, the README as a page of its own, its links followed in a
 # browser: pandoc, standalone, its first heading the page's title.
-README.html: README.md
+index.html: README.md
 	pandoc --standalone --shift-heading-level-by=-1 \
-		--metadata pagetitle=tcswebasm README.md -o README.html
+		--metadata pagetitle=tcswebasm README.md -o index.html
 
 .PHONY: check
 check: rust-current
