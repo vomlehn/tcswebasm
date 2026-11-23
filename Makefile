@@ -15,6 +15,7 @@
 #                that changes its source, and adds it to the commit
 
 TCS_HELPERS ?= ../tcs-helpers
+TCS_HELPERS_REQUIRED := 0.12.0
 
 # Threads: atomic instructions, and memory the page's workers share, which
 # the linker makes only when told, with the thread-local storage each
@@ -62,8 +63,27 @@ README.html: README.md
 		--metadata pagetitle=tcswebasm README.md -o README.html
 
 .PHONY: check
-check:
+check: rust-current
 	$(TCS_HELPERS)/bin/html-pages check . docs
+
+# Stop, saying what to do, unless the tcs-helpers checkout is there and
+# at least TCS_HELPERS_REQUIRED.
+.PHONY: tcs-helpers
+tcs-helpers:
+	@if [ ! -x "$(TCS_HELPERS)/bin/tcs-helpers" ]; then \
+		echo "No tcs-helpers checkout at $(TCS_HELPERS): clone" \
+			"https://github.com/vomlehn/tcs-helpers beside this" \
+			"repository, or set TCS_HELPERS to where it is." >&2; \
+		exit 1; \
+	fi
+	@"$(TCS_HELPERS)/bin/tcs-helpers" --require $(TCS_HELPERS_REQUIRED)
+
+# Fail where the Rust this would be built with is not the newest stable:
+# see "The newest stable Rust" in tcs-helpers' README. rust-toolchain.toml
+# keeps the build on the stable channel; this notices a newer release.
+.PHONY: rust-current
+rust-current: tcs-helpers
+	"$(TCS_HELPERS)/bin/rust-current"
 
 .PHONY: hooks
 hooks:
