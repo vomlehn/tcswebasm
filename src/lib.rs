@@ -288,7 +288,6 @@ const EXAMPLES: &[Example] = &[
         name: "thermostat",
         command: &[
             "/bin/tcs-moc",
-            "--simulate=all",
             "--no-memlock",
             "/examples/thermostat/thermostat.ytcs",
         ],
@@ -309,7 +308,6 @@ const EXAMPLES: &[Example] = &[
         name: "tees",
         command: &[
             "/bin/tcs-moc",
-            "--simulate=all",
             "--no-memlock",
             "/examples/tees/tees.ytcs",
         ],
@@ -318,7 +316,6 @@ const EXAMPLES: &[Example] = &[
         name: "minimal",
         command: &[
             "/bin/tcs-moc",
-            "--simulate=all",
             "--no-memlock",
             "/examples/minimal/minimal.ytcs",
         ],

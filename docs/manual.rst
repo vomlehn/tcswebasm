@@ -28,7 +28,8 @@ The thermostat
 
 The thermostat example, as ``make runmocy
 TCSPECIAL_CONFIG_FILE=examples/thermostat/thermostat`` runs it on a desk,
-under ``--simulate=all``. The page starts tcs-moc, the ground station;
+under ``simulate: all``, which its simulator file states. The page starts
+tcs-moc, the ground station;
 tcs-moc starts tcs-sim and waits for it to say it is ready, then starts
 tcspecial, whose supervisor starts it again as its child, exactly as on
 Linux. Their windows are drawn in the page, one under another:
